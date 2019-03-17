@@ -7,11 +7,12 @@ import org.junit.Test;
 import static org.junit.Assert.fail;
 
 public class LibraryTest {
-    private Library library ;
+
+    private Library library;
     private BookRepository bookRepository;
 
     @Before
-    public void setup(){
+    public void setup() {
         //TODO instantiate the library and the repository
 
         //TODO add some test books (use BookRepository#addBooks)
@@ -19,42 +20,42 @@ public class LibraryTest {
     }
 
     @Test
-    public void member_can_borrow_a_book_if_book_is_available(){
+    public void member_can_borrow_a_book_if_book_is_available() {
         fail("Implement me");
     }
 
     @Test
-    public void borrowed_book_is_no_longer_available(){
+    public void borrowed_book_is_no_longer_available() {
         fail("Implement me");
     }
 
     @Test
-    public void residents_are_taxed_10cents_for_each_day_they_keep_a_book(){
+    public void residents_are_taxed_10cents_for_each_day_they_keep_a_book() {
         fail("Implement me");
     }
 
     @Test
-    public void students_pay_10_cents_the_first_30days(){
+    public void students_pay_10_cents_the_first_30days() {
         fail("Implement me");
     }
 
     @Test
-    public void students_in_1st_year_are_not_taxed_for_the_first_15days(){
+    public void students_in_1st_year_are_not_taxed_for_the_first_15days() {
         fail("Implement me");
     }
 
     @Test
-    public void students_pay_15cents_for_each_day_they_keep_a_book_after_the_initial_30days(){
+    public void students_pay_15cents_for_each_day_they_keep_a_book_after_the_initial_30days() {
         fail("Implement me");
     }
 
     @Test
-    public void residents_pay_20cents_for_each_day_they_keep_a_book_after_the_initial_60days(){
+    public void residents_pay_20cents_for_each_day_they_keep_a_book_after_the_initial_60days() {
         fail("Implement me");
     }
 
     @Test
-    public void members_cannot_borrow_book_if_they_have_late_books(){
+    public void members_cannot_borrow_book_if_they_have_late_books() {
         fail("Implement me");
     }
 }

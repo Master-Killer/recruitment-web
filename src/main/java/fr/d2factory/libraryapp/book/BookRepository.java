@@ -9,10 +9,11 @@ import java.util.Map;
  * The book repository emulates a database via 2 HashMaps
  */
 public class BookRepository {
+
     private Map<ISBN, Book> availableBooks = new HashMap<>();
     private Map<Book, LocalDate> borrowedBooks = new HashMap<>();
 
-    public void addBooks(List<Book> books){
+    public void addBooks(List<Book> books) {
         //TODO implement the missing feature
     }
 
@@ -21,7 +22,7 @@ public class BookRepository {
         return null;
     }
 
-    public void saveBookBorrow(Book book, LocalDate borrowedAt){
+    public void saveBookBorrow(Book book, LocalDate borrowedAt) {
         //TODO implement the missing feature
     }
 

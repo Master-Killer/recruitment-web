@@ -7,6 +7,7 @@ import fr.d2factory.libraryapp.library.Library;
  * A member can be either a student or a resident
  */
 public abstract class Member {
+
     /**
      * An initial sum of money the member has
      */
