@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * The book repository emulates a database via 2 HashMaps
@@ -17,7 +18,7 @@ public class BookRepository {
         //TODO implement the missing feature
     }
 
-    public Book findBook(final long isbnCode) {
+    public Optional<Book> findBook(final long isbnCode) {
         //TODO implement the missing feature
         return null;
     }
