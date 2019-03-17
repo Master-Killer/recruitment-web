@@ -4,7 +4,7 @@ public class ISBN {
 
     long isbnCode;
 
-    public ISBN(long isbnCode) {
+    public ISBN(final long isbnCode) {
         this.isbnCode = isbnCode;
     }
 }

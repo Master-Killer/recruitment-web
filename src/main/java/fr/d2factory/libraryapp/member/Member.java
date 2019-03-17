@@ -24,7 +24,7 @@ public abstract class Member {
         return wallet;
     }
 
-    public void setWallet(float wallet) {
+    public void setWallet(final float wallet) {
         this.wallet = wallet;
     }
 }
