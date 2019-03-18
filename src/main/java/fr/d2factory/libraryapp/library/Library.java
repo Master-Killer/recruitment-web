@@ -34,7 +34,7 @@ public interface Library {
      * @param book       the {@link Book} they return
      * @param member     the {@link Member} who is returning the book
      * @param returnedAt the date when the book was returned
-     * @throws IllegalArgumentException in case the returned book is form another member
+     * @throws IllegalStateException in case the returned book is form another member
      * @see Member#payBook(long)
      */
     void returnBook(Book book, Member member, final LocalDate returnedAt);

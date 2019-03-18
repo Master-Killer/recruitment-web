@@ -33,15 +33,16 @@ class MemberTest {
 
         // can use assertAll to gather all results from all assertions and not stop after the first fail
 
+        final Class<IllegalArgumentException> expectedType = IllegalArgumentException.class;
         assertAll(
-                () -> assertThrows(IllegalArgumentException.class, () -> new Resident(_1000).payBook(-1)),
-                () -> assertThrows(IllegalArgumentException.class, () -> new Resident(_1000).payBook(Integer.MIN_VALUE)),
-                () -> assertThrows(IllegalArgumentException.class, () -> new Student(_1000).payBook(-1)),
-                () -> assertThrows(IllegalArgumentException.class, () -> new Student(_1000).payBook(Integer.MIN_VALUE)),
-                () -> assertThrows(IllegalArgumentException.class, () -> new FirstYearStudent(_1000).payBook(-1)),
-                () -> assertThrows(IllegalArgumentException.class, () -> new FirstYearStudent(_1000).payBook(Integer.MIN_VALUE)),
-                () -> assertThrows(IllegalArgumentException.class, () -> new MyMember(_1000).payBook(-1)),
-                () -> assertThrows(IllegalArgumentException.class, () -> new MyMember(_1000).payBook(Integer.MIN_VALUE))
+                () -> assertThrows(expectedType, () -> new Resident(_1000).payBook(-1)),
+                () -> assertThrows(expectedType, () -> new Resident(_1000).payBook(Integer.MIN_VALUE)),
+                () -> assertThrows(expectedType, () -> new Student(_1000).payBook(-1)),
+                () -> assertThrows(expectedType, () -> new Student(_1000).payBook(Integer.MIN_VALUE)),
+                () -> assertThrows(expectedType, () -> new FirstYearStudent(_1000).payBook(-1)),
+                () -> assertThrows(expectedType, () -> new FirstYearStudent(_1000).payBook(Integer.MIN_VALUE)),
+                () -> assertThrows(expectedType, () -> new MyMember(_1000).payBook(-1)),
+                () -> assertThrows(expectedType, () -> new MyMember(_1000).payBook(Integer.MIN_VALUE))
         );
     }
 

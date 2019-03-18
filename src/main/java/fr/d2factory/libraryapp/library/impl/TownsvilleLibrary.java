@@ -71,12 +71,12 @@ public class TownsvilleLibrary implements Library {
         final Optional<LocalDate> maybeBorrowedBookDate = bookRepository.findBorrowedBookDate(book);
 
         final LocalDate borrowDate = maybeBorrowedBookDate
-                .orElseThrow(() -> new IllegalArgumentException("Cannot return a book that was not borrowed: " + book));
+                .orElseThrow(() -> new IllegalStateException("Cannot return a book that was not borrowed: " + book));
 
         final Set<Book> borrowings = memberBorrowings.getOrDefault(member, new HashSet<>());
         final boolean removed = borrowings.remove(book);
         if (!removed)
-            throw new IllegalArgumentException(String.format("Cannot return a book that was not borrowed by the same member: %s, member %s", book, member));
+            throw new IllegalStateException(String.format("Cannot return a book that was not borrowed by the same member: %s, member %s", book, member));
 
         final long elapsed = borrowDate.until(returnedAt, DAYS);
         member.payBook(elapsed);

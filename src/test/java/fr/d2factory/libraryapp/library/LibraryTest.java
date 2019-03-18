@@ -98,13 +98,13 @@ public class LibraryTest {
         // different member
         final Member anotherMember = new MyMember(_1000);
 
-        assertThrows(IllegalArgumentException.class, () -> library.returnBook(book, anotherMember, borrowedAt));
+        assertThrows(IllegalStateException.class, () -> library.returnBook(book, anotherMember, borrowedAt));
 
         // borrow another book for misdirection
         final Book bookNotReturning = library.borrowBook(new ISBN(968787565445L), anotherMember, borrowedAt).get();
 
         // still try to return the book from the first member
-        assertThrows(IllegalArgumentException.class, () -> library.returnBook(book, anotherMember, borrowedAt));
+        assertThrows(IllegalStateException.class, () -> library.returnBook(book, anotherMember, borrowedAt));
 
         assertFalse(bookRepository.findBook(isbn).isPresent());
         assertTrue(bookRepository.findBorrowedBookDate(book).isPresent());
