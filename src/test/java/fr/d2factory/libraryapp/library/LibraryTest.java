@@ -21,13 +21,13 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.lessThan;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class LibraryTest {
+class LibraryTest {
 
     private Library library;
     private BookRepository bookRepository;
 
     @BeforeEach
-    public void setup() throws IOException {
+    void setup() throws IOException {
 
         bookRepository = new BookRepository();
         bookRepository.addBooks(TestUtils.loadTestBooks());
@@ -36,7 +36,13 @@ public class LibraryTest {
     }
 
     @Test
-    public void member_can_borrow_a_book_if_book_is_available() {
+    void member_cannot_borrow_a_non_existent_book() {
+        final Optional<Book> book = library.borrowBook(new ISBN(0), new MyMember(_1000), LocalDate.now());
+        assertFalse(book.isPresent());
+    }
+
+    @Test
+    void member_can_borrow_a_book_if_book_is_available() {
 
         final ISBN isbnCode = new ISBN(46578964513L);
 
@@ -51,7 +57,7 @@ public class LibraryTest {
     }
 
     @Test
-    public void borrowed_book_is_no_longer_available() {
+    void borrowed_book_is_no_longer_available() {
         final ISBN sameBook = new ISBN(46578964513L);
 
         final Member member = new MyMember(_1000);
@@ -70,7 +76,7 @@ public class LibraryTest {
     }
 
     @Test
-    public void member_can_return_a_borrowed_book() {
+    void member_can_return_a_borrowed_book() {
         final ISBN isbn = new ISBN(46578964513L);
 
         final BigDecimal initial = _1000;
@@ -88,7 +94,13 @@ public class LibraryTest {
     }
 
     @Test
-    public void member_cannot_return_a_book_borrowed_by_someone_else() {
+    void member_cannot_return_a_non_existent_book() {
+        final Book notABook = new Book("this is not a book", "No one", new ISBN(Long.MIN_VALUE));
+        assertThrows(IllegalStateException.class, () -> library.returnBook(notABook, new MyMember(_1000), LocalDate.now()));
+    }
+
+    @Test
+    void member_cannot_return_a_book_borrowed_by_someone_else() {
         final ISBN isbn = new ISBN(46578964513L);
         final Member borrower = new MyMember(_1000);
         final LocalDate borrowedAt = LocalDate.now();
@@ -111,7 +123,7 @@ public class LibraryTest {
     }
 
     @Test
-    public void members_cannot_borrow_book_if_they_have_late_books() {
+    void members_cannot_borrow_book_if_they_have_late_books() {
         final ISBN firstCode = new ISBN(3326456467846L);
         final ISBN secondCode = new ISBN(465789453149L);
 
@@ -125,7 +137,7 @@ public class LibraryTest {
     }
 
     @Test
-    public void members_can_borrow_book_after_they_return_late_book() {
+    void members_can_borrow_book_after_they_return_late_book() {
         final ISBN firstCode = new ISBN(3326456467846L);
         final ISBN secondCode = new ISBN(465789453149L);
 

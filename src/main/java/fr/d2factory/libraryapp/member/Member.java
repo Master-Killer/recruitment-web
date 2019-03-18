@@ -6,7 +6,7 @@ import java.math.BigDecimal;
 
 /**
  * A member is a person who can borrow and return books to a {@link Library}
- * A member can be either a student or a resident
+ * A member can be either a first year student, a student or a resident
  */
 public abstract class Member {
 
