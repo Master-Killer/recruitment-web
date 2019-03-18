@@ -1,6 +1,7 @@
 package fr.d2factory.libraryapp.library;
 
 import fr.d2factory.libraryapp.book.Book;
+import fr.d2factory.libraryapp.book.ISBN;
 import fr.d2factory.libraryapp.member.Member;
 
 import java.time.LocalDate;
@@ -24,15 +25,16 @@ public interface Library {
      * @see fr.d2factory.libraryapp.book.ISBN
      * @see Member
      */
-    Optional<Book> borrowBook(long isbnCode, Member member, LocalDate borrowedAt) throws HasLateBooksException;
+    Optional<Book> borrowBook(ISBN isbnCode, Member member, LocalDate borrowedAt) throws HasLateBooksException;
 
     /**
      * A member returns a book to the library.
      * We should calculate the tarif and 'probably' charge the member
      *
-     * @param book   the {@link Book} they return
-     * @param member the {@link Member} who is returning the book
-     * @see Member#payBook(int)
+     * @param book       the {@link Book} they return
+     * @param member     the {@link Member} who is returning the book
+     * @param returnedAt the date when the book was returned
+     * @see Member#payBook(long)
      */
-    void returnBook(Book book, Member member);
+    void returnBook(Book book, Member member, final LocalDate returnedAt);
 }

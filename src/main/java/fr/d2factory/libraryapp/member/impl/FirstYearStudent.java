@@ -9,7 +9,7 @@ public class FirstYearStudent extends Student {
     }
 
     @Override
-    public void payBook(final int numberOfDays) {
+    public void payBook(final long numberOfDays) {
 
     }
 }

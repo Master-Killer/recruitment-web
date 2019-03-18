@@ -11,7 +11,7 @@ public class Resident extends Member {
     }
 
     @Override
-    public void payBook(final int numberOfDays) {
+    public void payBook(final long numberOfDays) {
 
     }
 

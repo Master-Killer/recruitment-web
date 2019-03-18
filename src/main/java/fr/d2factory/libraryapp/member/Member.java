@@ -29,8 +29,11 @@ public abstract class Member {
     // should payBook be able fail? Or partially succeed?
     // if this.wallet is the wallet of the Member, shouldn't the Library has its own balance to keep accounts?
     // For now allow wallet to be negative, talk to business to resolve this
-    public abstract void payBook(int numberOfDays); //TODO what of negative?
+    public abstract void payBook(long numberOfDays); //TODO what of negative?
 
+    /**
+     * The number of day at which point the member becomes late
+     */
     public abstract int dayOfLateness();
 
     public BigDecimal getWallet() {

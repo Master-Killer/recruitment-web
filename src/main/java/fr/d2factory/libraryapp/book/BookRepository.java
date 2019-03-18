@@ -11,24 +11,33 @@ import java.util.Optional;
  */
 public class BookRepository {
 
+    //TODO javadoc
+
     private final Map<ISBN, Book> availableBooks = new HashMap<>();
     private final Map<Book, LocalDate> borrowedBooks = new HashMap<>();
 
     public void addBooks(final List<Book> books) {
-        //TODO implement the missing feature
+        books.forEach(book -> availableBooks.put(book.getIsbn(), book));
     }
 
-    public Optional<Book> findBook(final long isbnCode) {
-        //TODO implement the missing feature
-        return null;
+    public Optional<Book> findBook(final ISBN isbnCode) {
+        return Optional.ofNullable(availableBooks.get(isbnCode));
     }
 
+    // assumes that the book object is known because it was just taken from availableBooks
+    // might tighten security after
     public void saveBookBorrow(final Book book, final LocalDate borrowedAt) {
-        //TODO implement the missing feature
+        availableBooks.remove(book.getIsbn());
+        borrowedBooks.put(book, borrowedAt);
     }
 
-    public LocalDate findBorrowedBookDate(final Book book) {
-        //TODO implement the missing feature
-        return null;
+    // ditto
+    public void saveBookReturn(final Book book) {
+        borrowedBooks.remove(book);
+        availableBooks.put(book.getIsbn(), book);
+    }
+
+    public Optional<LocalDate> findBorrowedBookDate(final Book book) {
+        return Optional.ofNullable(borrowedBooks.get(book));
     }
 }
