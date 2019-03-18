@@ -8,7 +8,6 @@ import fr.d2factory.libraryapp.member.Member;
 import fr.d2factory.libraryapp.member.impl.FirstYearStudent;
 import fr.d2factory.libraryapp.member.impl.Resident;
 import fr.d2factory.libraryapp.member.impl.Student;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -23,8 +22,8 @@ import java.util.stream.IntStream;
 import static java.math.BigDecimal.ZERO;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.comparesEqualTo;
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.hamcrest.Matchers.lessThan;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class LibraryTest {
 
@@ -35,10 +34,6 @@ public class LibraryTest {
 
     @BeforeEach
     public void setup() throws IOException {
-        //TODO instantiate the library and the repository
-
-        //TODO add some test books (use BookRepository#addBooks)
-        //TODO to help you a file called books.json is available in src/test/resources
 
         bookRepository = new BookRepository();
         bookRepository.addBooks(TestUtils.loadTestBooks());
@@ -51,12 +46,14 @@ public class LibraryTest {
 
         final ISBN isbnCode = new ISBN(46578964513L);
 
-        Assertions.assertTrue(bookRepository.findBook(isbnCode).isPresent());
+        assertTrue(bookRepository.findBook(isbnCode).isPresent());
 
         final Member member = new MyMember(_1000);
         final Optional<Book> book = library.borrowBook(isbnCode, member, LocalDate.now());
 
-        Assertions.assertTrue(book.isPresent());
+        assertTrue(book.isPresent());
+        assertFalse(bookRepository.findBook(isbnCode).isPresent());
+        assertTrue(bookRepository.findBorrowedBookDate(book.get()).isPresent());
     }
 
     @Test
@@ -65,42 +62,43 @@ public class LibraryTest {
 
         final Member member = new MyMember(_1000);
         final LocalDate borrowedAt = LocalDate.now();
-        final Optional<Book> book1 = library.borrowBook(sameBook, member, borrowedAt);
-
-        Assertions.assertTrue(book1.isPresent());
-        Assertions.assertFalse(bookRepository.findBook(sameBook).isPresent());
+        library.borrowBook(sameBook, member, borrowedAt);
 
         // same member
         final Optional<Book> book2 = library.borrowBook(sameBook, member, borrowedAt);
 
-        Assertions.assertFalse(book2.isPresent());
+        assertFalse(book2.isPresent());
 
         final MyMember differentMember = new MyMember(_1000);
         final Optional<Book> book3 = library.borrowBook(sameBook, differentMember, borrowedAt);
 
-        Assertions.assertFalse(book3.isPresent());
+        assertFalse(book3.isPresent());
     }
 
     @Test
     public void member_can_return_a_borrowed_book() {
         final ISBN isbn = new ISBN(46578964513L);
 
-        final Member member = new MyMember(_1000);
+        final BigDecimal initial = _1000;
+        final Member member = new Student(initial);
         final LocalDate borrowedAt = LocalDate.now();
         final Book book = library.borrowBook(isbn, member, borrowedAt).get();
 
         // same member
-        library.returnBook(book, member, borrowedAt);
+        library.returnBook(book, member, borrowedAt.plusDays(20));
 
-        Assertions.assertTrue(bookRepository.findBook(isbn).isPresent());
+        assertTrue(bookRepository.findBook(isbn).isPresent());
+        assertFalse(bookRepository.findBorrowedBookDate(book).isPresent());
+        // assert that member has been charged
+        assertThat(member.getWallet(), lessThan(initial));
     }
 
     @Test
-    public void member_cannot_return_a_non_borrowed_book() {
+    public void member_cannot_return_a_book_borrowed_by_someone_else() {
         final ISBN isbn = new ISBN(46578964513L);
-
         final Member borrower = new MyMember(_1000);
         final LocalDate borrowedAt = LocalDate.now();
+
         final Book book = library.borrowBook(isbn, borrower, borrowedAt).get();
 
         // different member
@@ -114,7 +112,8 @@ public class LibraryTest {
         // still try to return the book from the first member
         assertThrows(IllegalArgumentException.class, () -> library.returnBook(book, anotherMember, borrowedAt));
 
-        Assertions.assertFalse(bookRepository.findBook(isbn).isPresent());
+        assertFalse(bookRepository.findBook(isbn).isPresent());
+        assertTrue(bookRepository.findBorrowedBookDate(book).isPresent());
     }
 
     public static BigDecimal memberPays(final Member member, final int numberOfDays) {
@@ -266,14 +265,33 @@ public class LibraryTest {
 
     @Test
     public void members_cannot_borrow_book_if_they_have_late_books() {
+        final ISBN firstCode = new ISBN(3326456467846L);
+        final ISBN secondCode = new ISBN(465789453149L);
 
         final Member member = new Resident(_1000);
         final LocalDate borrowedAt = LocalDate.now();
-        final Optional<Book> book = library.borrowBook(new ISBN(3326456467846L), member, borrowedAt);
+        final Book book = library.borrowBook(firstCode, member, borrowedAt).get();
 
-        Assertions.assertTrue(book.isPresent());
+        assertThrows(HasLateBooksException.class, () -> library.borrowBook(secondCode, member, borrowedAt.plusDays(member.dayOfLateness() + 10)));
+        // assert that the book is not borrowed
+        assertTrue(bookRepository.findBook(secondCode).isPresent());
+    }
 
-        assertThrows(HasLateBooksException.class, () -> library.borrowBook(new ISBN(465789453149L), member, borrowedAt.plusDays(100)));
+    @Test
+    public void members_can_borrow_book_after_they_return_late_book() {
+        final ISBN firstCode = new ISBN(3326456467846L);
+        final ISBN secondCode = new ISBN(465789453149L);
+
+        final Member member = new Resident(_1000);
+        final LocalDate borrowedAt = LocalDate.now();
+        final Book book = library.borrowBook(firstCode, member, borrowedAt).get();
+
+        assertThrows(HasLateBooksException.class, () -> library.borrowBook(secondCode, member, borrowedAt.plusDays(member.dayOfLateness() + 40)));
+
+        library.returnBook(book, member, borrowedAt.plusDays(101));
+
+        final Optional<Book> book2 = library.borrowBook(secondCode, member, borrowedAt.plusDays(2 * (member.dayOfLateness() + 40)));
+        assertTrue(book2.isPresent());
     }
 
     private static class MyMember extends Member {
@@ -288,7 +306,7 @@ public class LibraryTest {
         }
 
         @Override
-        public int dayOfLateness() {
+        public long dayOfLateness() {
             return Integer.MAX_VALUE;
         }
     }

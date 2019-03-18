@@ -46,7 +46,7 @@ public abstract class Member {
     /**
      * The number of day at which point the member becomes late
      */
-    public abstract int dayOfLateness();
+    public abstract long dayOfLateness();
 
     public BigDecimal getWallet() {
         return wallet;

@@ -18,12 +18,12 @@ public class Student extends Member {
     @Override
     protected BigDecimal priceForBook(final long numberOfDays) {
 
-        final int standardDays = dayOfLateness();
+        final long standardDays = dayOfLateness();
         return leftToPayAtStandardAndLateRate(numberOfDays, standardDays, STANDARD_RATE, LATE_RATE);
     }
 
     @Override
-    public int dayOfLateness() {
+    public long dayOfLateness() {
         return 30;
     }
 }

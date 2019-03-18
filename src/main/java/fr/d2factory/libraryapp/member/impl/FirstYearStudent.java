@@ -22,7 +22,7 @@ public class FirstYearStudent extends Member {
         final long daysAtSpecialRate = Math.min(numberOfDays, SPECIAL_DAYS);
         final long daysLeftToPay = numberOfDays - daysAtSpecialRate;
 
-        final int standardDays = dayOfLateness() - SPECIAL_DAYS;
+        final long standardDays = dayOfLateness() - SPECIAL_DAYS;
         return leftToPayAtStandardAndLateRate(daysLeftToPay, standardDays, STANDARD_RATE, LATE_RATE);
     }
 
@@ -33,7 +33,7 @@ public class FirstYearStudent extends Member {
      * @param lateRate     daily rate of late period
      * @return the price to pay for a book during the standard and late period
      */
-    static BigDecimal leftToPayAtStandardAndLateRate(final long numberOfDays, final int standardDays,
+    static BigDecimal leftToPayAtStandardAndLateRate(final long numberOfDays, final long standardDays,
                                                      final BigDecimal standardRate, final BigDecimal lateRate) {
 
         BigDecimal price = ZERO;
@@ -49,7 +49,7 @@ public class FirstYearStudent extends Member {
     }
 
     @Override
-    public int dayOfLateness() {
+    public long dayOfLateness() {
         return 30;
     }
 }
