@@ -15,6 +15,10 @@ public abstract class Member {
      */
     private BigDecimal wallet;
 
+    protected Member(final BigDecimal wallet) {
+        this.wallet = wallet;
+    }
+
     /**
      * The member should pay their books when they are returned to the library
      *
@@ -25,9 +29,15 @@ public abstract class Member {
     // should payBook be able fail? Or partially succeed?
     // if this.wallet is the wallet of the Member, shouldn't the Library has its own balance to keep accounts?
     // For now allow wallet to be negative, talk to business to resolve this
-    public abstract void payBook(int numberOfDays);
+    public abstract void payBook(int numberOfDays); //TODO what of negative?
+
+    public abstract int dayOfLateness();
 
     public BigDecimal getWallet() {
         return wallet;
+    }
+
+    protected void setWallet(final BigDecimal wallet) {
+        this.wallet = wallet;
     }
 }
