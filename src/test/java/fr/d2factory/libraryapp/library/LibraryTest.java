@@ -108,6 +108,12 @@ public class LibraryTest {
 
         assertThrows(IllegalArgumentException.class, () -> library.returnBook(book, anotherMember, borrowedAt));
 
+        // borrow another book for misdirection
+        final Book bookNotReturning = library.borrowBook(new ISBN(968787565445L), anotherMember, borrowedAt).get();
+
+        // still try to return the book from the first member
+        assertThrows(IllegalArgumentException.class, () -> library.returnBook(book, anotherMember, borrowedAt));
+
         Assertions.assertFalse(bookRepository.findBook(isbn).isPresent());
     }
 

@@ -8,12 +8,19 @@ import fr.d2factory.libraryapp.library.Library;
 import fr.d2factory.libraryapp.member.Member;
 
 import java.time.LocalDate;
-import java.time.Period;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.IdentityHashMap;
 import java.util.Optional;
+import java.util.Set;
+
+import static java.time.temporal.ChronoUnit.DAYS;
 
 public class TownsvilleLibrary implements Library {
 
     private final BookRepository bookRepository;
+
+    private final IdentityHashMap<Member, Set<Book>> memberBorrowings = new IdentityHashMap<>();
 
     public TownsvilleLibrary(final BookRepository bookRepository) {
         this.bookRepository = bookRepository;
@@ -21,20 +28,42 @@ public class TownsvilleLibrary implements Library {
 
     @Override
     public Optional<Book> borrowBook(final ISBN isbnCode, final Member member, final LocalDate borrowedAt) throws HasLateBooksException {
+        if (hasLateBook(member, borrowedAt)) throw new HasLateBooksException();
 
         final Optional<Book> maybeBook = bookRepository.findBook(isbnCode);
         return maybeBook.map(book -> {
+
+            memberBorrowings.computeIfAbsent(member, k -> new HashSet<>()).add(book);
+
             bookRepository.saveBookBorrow(book, borrowedAt);
-            //TODO member tardiness
+
             return book;
         });
     }
 
-    private boolean hasLateBook(final Member member) {
+    boolean hasLateBook(final Member member, final LocalDate borrowedAt) {
         final int dayOfLateness = member.dayOfLateness();
         // find the highest elapsed time of a borrowed book
         // compare it to dayOfLateness
-        return false;
+
+        final Optional<LocalDate> maybeOldestDate = oldestBookDate(member);
+        if (!maybeOldestDate.isPresent()) return false; // no book no lateness
+
+        final long daysBetween = maybeOldestDate.get().until(borrowedAt, DAYS);
+        return daysBetween > dayOfLateness;
+    }
+
+    /**
+     * Find the date of the oldest borrowed book from member if any
+     */
+    private Optional<LocalDate> oldestBookDate(final Member member) {
+        final Set<Book> borrowings = memberBorrowings.getOrDefault(member, new HashSet<>());
+
+        return borrowings.stream()
+                .map(bookRepository::findBorrowedBookDate)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .min(Comparator.naturalOrder());
     }
 
     @Override
@@ -44,8 +73,13 @@ public class TownsvilleLibrary implements Library {
         final LocalDate borrowDate = maybeBorrowedBookDate
                 .orElseThrow(() -> new IllegalArgumentException("Cannot return a book that was not borrowed: " + book));
 
-        final Period elapsed = Period.between(borrowDate, returnedAt);
-        member.payBook(elapsed.getDays());
+        final Set<Book> borrowings = memberBorrowings.getOrDefault(member, new HashSet<>());
+        final boolean removed = borrowings.remove(book);
+        if (!removed)
+            throw new IllegalArgumentException(String.format("Cannot return a book that was not borrowed by the same member: %s, member %s", book, member));
+
+        final long elapsed = borrowDate.until(returnedAt, DAYS);
+        member.payBook(elapsed);
 
         bookRepository.saveBookReturn(book);
     }
