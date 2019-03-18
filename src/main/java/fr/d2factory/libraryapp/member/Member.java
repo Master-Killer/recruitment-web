@@ -29,7 +29,19 @@ public abstract class Member {
     // should payBook be able fail? Or partially succeed?
     // if this.wallet is the wallet of the Member, shouldn't the Library has its own balance to keep accounts?
     // For now allow wallet to be negative, talk to business to resolve this
-    public abstract void payBook(long numberOfDays); //TODO what of negative?
+    public void payBook(final long numberOfDays) {
+        if (numberOfDays < 0) throw new IllegalArgumentException("numberOfDays was negative " + numberOfDays);
+
+        setWallet(getWallet().subtract(priceForBook(numberOfDays)));
+    }
+
+    /**
+     * The price to pay for a book when they are returned to the library
+     *
+     * @param numberOfDays the number of days they kept the book
+     * @return the price to pay for the book
+     */
+    protected abstract BigDecimal priceForBook(final long numberOfDays);
 
     /**
      * The number of day at which point the member becomes late

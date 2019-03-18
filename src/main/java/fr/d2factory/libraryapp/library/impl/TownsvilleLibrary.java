@@ -30,7 +30,10 @@ public class TownsvilleLibrary implements Library {
         });
     }
 
-    public boolean hasLateBook(final Member member, final LocalDate borrowedAt) {
+    private boolean hasLateBook(final Member member) {
+        final int dayOfLateness = member.dayOfLateness();
+        // find the highest elapsed time of a borrowed book
+        // compare it to dayOfLateness
         return false;
     }
 

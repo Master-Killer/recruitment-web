@@ -191,15 +191,38 @@ public class LibraryTest {
         }
     }
 
-    public static IntStream firstYearStudent() {
+    public static IntStream firstYearStudentSpecialDays() {
         return IntStream.rangeClosed(0, 15);
     }
 
     @ParameterizedTest
-    @MethodSource("firstYearStudent")
+    @MethodSource("firstYearStudentSpecialDays")
     public void students_in_1st_year_are_not_taxed_for_the_first_15days(final Integer numberOfDays) {
 
         assertThat(memberPays(new FirstYearStudent(_1000), numberOfDays), comparesEqualTo(ZERO));
+    }
+
+    public static Object[][] firstYearStudent() {
+        return new Object[][] {
+                // still free
+                { 15, "0" },
+                // starts to pay
+                { 16, "0.1" },
+                { 17, "0.2" },
+                { 29, "1.4" },
+                { 30, "1.5" },
+                // starts to be late
+                { 31, "1.65" },
+                { 32, "1.8" },
+                { 130, "16.5" },
+        };
+    }
+
+    @ParameterizedTest
+    @MethodSource("firstYearStudent")
+    public void students_in_1st_year_pay_fees(final Integer numberOfDays, final String price) {
+
+        assertThat(memberPays(new FirstYearStudent(_1000), numberOfDays), comparesEqualTo(new BigDecimal(price)));
     }
 
     public static Object[][] studentLate() {
@@ -224,6 +247,8 @@ public class LibraryTest {
     public static Object[][] residentLate() {
         return new Object[][] {
                 { 61, "6.2" },
+                { 62, "6.4" },
+                { 100, "14" }, // 60 * 0.1 + 40 * 0.2
         };
     }
 
@@ -252,8 +277,8 @@ public class LibraryTest {
         }
 
         @Override
-        public void payBook(final long numberOfDays) {
-
+        protected BigDecimal priceForBook(final long numberOfDays) {
+            return ZERO;
         }
 
         @Override
