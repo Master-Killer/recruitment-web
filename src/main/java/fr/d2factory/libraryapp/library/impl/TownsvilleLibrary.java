@@ -1,20 +1,18 @@
 package fr.d2factory.libraryapp.library.impl;
 
+import static java.time.temporal.ChronoUnit.DAYS;
+
 import fr.d2factory.libraryapp.book.Book;
 import fr.d2factory.libraryapp.book.BookRepository;
 import fr.d2factory.libraryapp.book.ISBN;
 import fr.d2factory.libraryapp.library.HasLateBooksException;
 import fr.d2factory.libraryapp.library.Library;
 import fr.d2factory.libraryapp.member.Member;
-
 import java.time.LocalDate;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.Optional;
 import java.util.Set;
-
-import static java.time.temporal.ChronoUnit.DAYS;
 
 public class TownsvilleLibrary implements Library {
 
@@ -41,29 +39,17 @@ public class TownsvilleLibrary implements Library {
         });
     }
 
-    private boolean hasLateBook(final Member member, final LocalDate borrowedAt) {
+    private boolean hasLateBook(final Member member, final LocalDate now) {
         final long dayOfLateness = member.dayOfLateness();
         // find the highest elapsed time of a borrowed book
         // compare it to dayOfLateness
 
-        final Optional<LocalDate> maybeOldestDate = oldestBookDate(member);
-        if (!maybeOldestDate.isPresent()) return false; // no book no lateness
-
-        final long daysBetween = maybeOldestDate.get().until(borrowedAt, DAYS);
-        return daysBetween > dayOfLateness;
-    }
-
-    /**
-     * Find the date of the oldest borrowed book from member if any
-     */
-    private Optional<LocalDate> oldestBookDate(final Member member) {
+        // no book no lateness
         final Set<Book> borrowings = memberBorrowings.getOrDefault(member, new HashSet<>());
-
-        return borrowings.stream()
-                .map(bookRepository::findBorrowedBookDate)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .min(Comparator.naturalOrder());
+        return borrowings.stream().anyMatch(
+            book -> bookRepository.findBorrowedBookDate(book)
+                .map(borrowedDate -> borrowedDate.until(now, DAYS) > dayOfLateness)
+                .orElse(false));
     }
 
     @Override

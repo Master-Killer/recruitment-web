@@ -8,6 +8,8 @@ import fr.d2factory.libraryapp.library.impl.TownsvilleLibrary;
 import fr.d2factory.libraryapp.member.Member;
 import fr.d2factory.libraryapp.member.impl.Resident;
 import fr.d2factory.libraryapp.member.impl.Student;
+import org.hamcrest.MatcherAssert;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -17,8 +19,6 @@ import java.time.LocalDate;
 import java.util.Optional;
 
 import static fr.d2factory.libraryapp.library.MemberTest._1000;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.lessThan;
 import static org.junit.jupiter.api.Assertions.*;
 
 class LibraryTest {
@@ -90,7 +90,7 @@ class LibraryTest {
         assertTrue(bookRepository.findBook(isbn).isPresent());
         assertFalse(bookRepository.findBorrowedBookDate(book).isPresent());
         // assert that member has been charged
-        assertThat(member.getWallet(), lessThan(initial));
+        MatcherAssert.assertThat(member.getWallet(), Matchers.lessThan(initial));
     }
 
     @Test
@@ -120,6 +120,13 @@ class LibraryTest {
 
         assertFalse(bookRepository.findBook(isbn).isPresent());
         assertTrue(bookRepository.findBorrowedBookDate(book).isPresent());
+    }
+
+    @Test
+    public void members_can_borrow_book_if_they_dont_have_late_books() {
+        Student student = new Student(_1000);
+        library.borrowBook(new ISBN(46578964513L), student, LocalDate.now().minusDays(35));
+        library.borrowBook(new ISBN(3326456467846L), student, LocalDate.now().minusDays(35));
     }
 
     @Test
